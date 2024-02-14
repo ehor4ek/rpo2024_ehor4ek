@@ -40,6 +40,10 @@ add_library(spdlog STATIC IMPORTED)
 set_target_properties(spdlog PROPERTIES IMPORTED_LOCATION
         /home/egor/AndroidStudioProjects/rpo2024_ehor4ek/libs/spdlog/build/x86/libspdlog.a)
 
+target_include_directories(fclient PUBLIC
+        /home/egor/AndroidStudioProjects/rpo2024_ehor4ek/libs/spdlog/spdlog/include
+        )
+
 add_library(mbedcrypto SHARED IMPORTED)
 set_target_properties(mbedcrypto PROPERTIES IMPORTED_LOCATION
         ${CMAKE_CURRENT_SOURCE_DIR}/../nativeLibs/${ANDROID_ABI}/libmbedcrypto.so)
@@ -51,7 +55,7 @@ target_include_directories(fclient PUBLIC
 
 target_link_libraries( # Specifies the target library.
         fclient
-
+        mbedcrypto
         # Links the target library to the log library
         # included in the NDK.
         ${log-lib} )
