@@ -23,8 +23,12 @@ public class PinpadActivity extends AppCompatActivity {
 
         TextView ta = findViewById(R.id.txtAmount);
         String amt = String.valueOf(getIntent().getStringExtra("amount"));
-        if (amt.equals("null")) amt = "100";
-        Long f= Long.valueOf(amt);
+        Long f;
+        if (amt.equals("null")) f = Long.valueOf(1);
+        else {
+            f = Long.valueOf(amt);
+        }
+
         DecimalFormat df = new DecimalFormat("#,###,###,##0.00");
         String s = df.format(f);
         ta.setText("Сумма: " + s);
@@ -41,9 +45,6 @@ public class PinpadActivity extends AppCompatActivity {
         ShuffleKeys();
 
         findViewById(R.id.btnOK).setOnClickListener((View) -> {
-            Intent it = new Intent();
-            it.putExtra("pin", pin);
-            setResult(RESULT_OK, it);
             finish();
         });
 
@@ -51,6 +52,8 @@ public class PinpadActivity extends AppCompatActivity {
             pin = "";
             tvPin.setText("");
         });
+
+        if (amt.equals("null")) finish();
     }
 
     public void keyClick(View v)
@@ -62,6 +65,13 @@ public class PinpadActivity extends AppCompatActivity {
             pin += key;
             tvPin.setText("****".substring(3 - sz));
         }
+
+        findViewById(R.id.btnOK).setOnClickListener((View) -> {
+            Intent it = new Intent();
+            it.putExtra("pin", pin);
+            setResult(RESULT_OK, it);
+            finish();
+        });
     }
 
     protected void ShuffleKeys()

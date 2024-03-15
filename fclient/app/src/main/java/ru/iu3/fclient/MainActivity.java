@@ -137,7 +137,7 @@ public class MainActivity extends AppCompatActivity implements TransactionEvents
         }).start();*/
 
         Intent it = new Intent(this, PinpadActivity.class);
-        //startActivity(it);
         activityResultLauncher.launch(it);
+        //startActivity(it);
     }
 }
