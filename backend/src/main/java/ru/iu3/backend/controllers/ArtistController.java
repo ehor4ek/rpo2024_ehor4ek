@@ -5,7 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
-import ru.iu3.backend.models.Country;
+import ru.iu3.backend.models.Artist;
 import ru.iu3.backend.repositories.ArtistRepository;
 
 import java.util.HashMap;
@@ -19,23 +19,23 @@ public class ArtistController {
     @Autowired
     ArtistRepository artistRepository;
 
-    @GetMapping("/countries")
+    @GetMapping("/artists")
     public List
     getAllCountries() {
-        return countryRepository.findAll();
+        return artistRepository.findAll();
     }
 
-    @PostMapping("/countries")
-    public ResponseEntity<Object> createCountry(@RequestBody Country country)
+    @PostMapping("/artists")
+    public ResponseEntity<Object> createArtist(@RequestBody Artist artist)
             throws Exception {
         try {
-            if (country.name.isEmpty() || country.name.length() == org.springframework.util.StringUtils.countOccurrencesOf(country.name, " "))
+            if (artist.name.isEmpty() || artist.name.length() == org.springframework.util.StringUtils.countOccurrencesOf(artist.name, " "))
             {
                 Map<String, String> map =  new HashMap<>();
-                map.put("error", "Country is empty");
+                map.put("error", "Artist is empty");
                 return ResponseEntity.ok(map);
             }
-            Country nc = countryRepository.save(country);
+            Artist nc = artistRepository.save(artist);
             return new ResponseEntity<Object>(nc, HttpStatus.OK);
         }
         catch(Exception ex) {
@@ -51,30 +51,30 @@ public class ArtistController {
         }
     }
 
-    @PutMapping("/countries/{id}")
-    public ResponseEntity<Country> updateCountry(@PathVariable(value = "id") Long countryId,
-                                                 @RequestBody Country countryDetails) {
-        Country country = null;
-        Optional<Country>
-                cc = countryRepository.findById(countryId);
+    @PutMapping("/artists/{id}")
+    public ResponseEntity<Artist> updateArtist(@PathVariable(value = "id") Long artistId,
+                                                 @RequestBody Artist artistDetails) {
+        Artist artist = null;
+        Optional<Artist>
+                cc = artistRepository.findById(artistId);
         if (cc.isPresent()) {
-            country = cc.get();
-            country.name = countryDetails.name;
-            countryRepository.save(country);
-            return ResponseEntity.ok(country);
+            artist = cc.get();
+            artist.name = artistDetails.name;
+            artistRepository.save(artist);
+            return ResponseEntity.ok(artist);
         } else {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "country not found");
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "artist not found");
         }
     }
 
-    @DeleteMapping("/countries/{id}")
-    public ResponseEntity<Object> deleteCountry(@PathVariable(value = "id") Long countryId) {
-        Optional<Country>
-                country = countryRepository.findById(countryId);
+    @DeleteMapping("/artists/{id}")
+    public ResponseEntity<Object> deleteArtist(@PathVariable(value = "id") Long artistId) {
+        Optional<Artist>
+                artist = artistRepository.findById(artistId);
         Map<String, Boolean>
                 resp = new HashMap<>();
-        if (country.isPresent()) {
-            countryRepository.delete(country.get());
+        if (artist.isPresent()) {
+            artistRepository.delete(artist.get());
             resp.put("deleted", Boolean.TRUE);
         }
         else
