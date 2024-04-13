@@ -6,7 +6,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.iu3.backend.models.Artist;
+import ru.iu3.backend.models.Country;
 import ru.iu3.backend.repositories.ArtistRepository;
+import ru.iu3.backend.repositories.CountryRepository;
 
 import java.util.HashMap;
 import java.util.List;
@@ -18,6 +20,8 @@ import java.util.Optional;
 public class ArtistController {
     @Autowired
     ArtistRepository artistRepository;
+    @Autowired
+    CountryRepository countryRepository;
 
     @GetMapping("/artists")
     public List
@@ -29,6 +33,12 @@ public class ArtistController {
     public ResponseEntity<Object> createArtist(@RequestBody Artist artist)
             throws Exception {
         try {
+            Optional<Country>
+                    cc = countryRepository.findById(artist.country.id);
+            if (cc.isPresent()) {
+                artist.country = cc.get();
+            }
+
             if (artist.name.isEmpty() || artist.name.length() == org.springframework.util.StringUtils.countOccurrencesOf(artist.name, " "))
             {
                 Map<String, String> map =  new HashMap<>();
