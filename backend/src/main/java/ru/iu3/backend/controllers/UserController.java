@@ -62,12 +62,10 @@ public class UserController {
         if (uu.isPresent()) {
             User u = uu.get();
             for (Museum m : museums) {
+                cnt++;
                 Optional<Museum>
                         mm = museumRepository.findById(m.id);
-                if (mm.isPresent()) {
-                    u.addMuseum(mm.get());
-                    cnt++;
-                }
+                mm.ifPresent(u::addMuseum);
             }
             userRepository.save(u);
         }
@@ -83,9 +81,11 @@ public class UserController {
         int cnt = 0;
         if (uu.isPresent()) {
             User u = uu.get();
-            for (Museum m : u.museums) {
-                u.removeMuseum(m);
+            for (Museum m : museums) {
                 cnt++;
+                Optional<Museum>
+                        mm = museumRepository.findById(m.id);
+                mm.ifPresent(u::removeMuseum);
             }
             userRepository.save(u);
         }
