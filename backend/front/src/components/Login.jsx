@@ -82,15 +82,19 @@ import React, {useState} from 'react';
 import BackendService from "./BackendService";
 import Utils from "../utils/Utils";
 import {useNavigate} from "react-router-dom";
+import {connect} from 'react-redux';
+import {userActions} from "../utils/Rdx";
+import {useDispatch} from "react-redux";
 
-export default function  Login() {
+export default connect()(function  Login() {
     const [username, setUsername] = useState('');
     const [password, setPassword] = useState('');
     const [loggingIn, setLoggingIn] = useState(false);
     const [submitted, setSubmitted] = useState(false);
-    const [error_message, setErrorMessage] = useState(null);
+    //const [error_message, setErrorMessage] = useState(null);
     const [st, setStyle] = useState({"display": "block"});
     const nav = useNavigate();
+    const dispatch = useDispatch();
 
     function handleChangeLogin(e) {
         setUsername(e.target.value);
@@ -100,24 +104,24 @@ export default function  Login() {
         setPassword(e.target.value);
     }
 
+
     function handleSubmit(e) {
         e.preventDefault();
         setSubmitted(true);
-        setErrorMessage(null);
+        //setErrorMessage(null);
         setLoggingIn(true);
         BackendService.login(username, password)
             .then ( resp => {
                 console.log(resp.data);
-                Utils.saveUser(resp.data);
                 setLoggingIn(false);
-                setStyle({"display": "none"});
+                dispatch(userActions.login(resp.data))
                 nav("/home");
             })
             .catch( err => {
-                if (err.response && err.response.status === 401)
-                    setErrorMessage("Ошибка авторизации");
-                else
-                    setErrorMessage(err.message);
+                //if (err.response && err.response.status === 401)
+                    //setErrorMessage("Ошибка авторизации");
+                //else
+                    //setErrorMessage(err.message);
                 setLoggingIn(false);
             })
     }
@@ -125,8 +129,8 @@ export default function  Login() {
 
     return  (
         <div className="col-md-6 me-0" style={st}>
-            {error_message &&
-                <div className="alert alert-danger mt-1 me-0 ms-0">{error_message}</div>}
+            {/*error_message &&
+                <div className="alert alert-danger mt-1 me-0 ms-0">{error_message}</div>*/}
             <h2>Вход</h2>
             <form name="form" onSubmit={handleSubmit}>
                 <div className="form-group">
@@ -154,4 +158,5 @@ export default function  Login() {
             </form>
         </div>
     );
-}
+});
+
