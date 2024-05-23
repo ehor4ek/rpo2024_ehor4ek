@@ -10,6 +10,15 @@ import {connect} from "react-redux";
 import SideBar from "./components/SideBar";
 import CountryListComponent from "./components/CountryListComponent";
 import CountryComponent from "./components/CountryComponent";
+import MyAccountComponent from "./components/MyAccountComponent";
+import UserComponent from "./components/UserComponent";
+import UserListComponent from "./components/UserListComponent";
+import PaintingComponent from "./components/PaintingComponent";
+import PaintingListComponent from "./components/PaintingListComponent";
+import MuseumComponent from "./components/MuseumComponent";
+import MuseumListComponent from "./components/MuseumListComponent";
+import ArtistComponent from "./components/ArtistComponent";
+import ArtistListComponent from "./components/ArtistListComponent";
 
 const ProtectedRoute = ({children}) => {
     let user = Utils.getUser();
@@ -30,9 +39,25 @@ const App = props => {
                         { props.error_message &&  <div className="alert alert-danger m-1">{props.error_message}</div>}
                         <Routes>
                             <Route path="login" element={<Login />}/>
+                            <Route path="account" element={<MyAccountComponent />}/>
                             <Route path="home" element={<ProtectedRoute><Home/></ProtectedRoute>}/>
+
                             <Route path="countries" element={<ProtectedRoute><CountryListComponent/></ProtectedRoute>}/>
                             <Route path="countries/:id" element={<ProtectedRoute><CountryComponent /></ProtectedRoute>}/>
+
+                            <Route path="artists" element={<ProtectedRoute><ArtistListComponent/></ProtectedRoute>}/>
+                            <Route path="artists/:id" element={<ProtectedRoute><ArtistComponent /></ProtectedRoute>}/>
+
+                            <Route path="museums" element={<ProtectedRoute><MuseumListComponent/></ProtectedRoute>}/>
+                            <Route path="museums/:id" element={<ProtectedRoute><MuseumComponent /></ProtectedRoute>}/>
+
+                            <Route path="paintings" element={<ProtectedRoute><PaintingListComponent/></ProtectedRoute>}/>
+                            <Route path="paintings/:id" element={<ProtectedRoute><PaintingComponent /></ProtectedRoute>}/>
+
+                            <Route path="users" element={<ProtectedRoute><UserListComponent/></ProtectedRoute>}/>
+                            <Route path="users/:id" element={<ProtectedRoute><UserComponent /></ProtectedRoute>}/>
+
+                            <Route path="my_account" element={<ProtectedRoute><MyAccountComponent/></ProtectedRoute>}/>
                         </Routes>
                     </div>
                 </div>

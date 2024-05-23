@@ -43,6 +43,9 @@ public class User {
     @Column(name = "activity")
     public LocalDateTime activity;
 
+    @Transient
+    public String np;
+
     @ManyToMany(mappedBy = "users", cascade = CascadeType.REMOVE)
     public Set<Museum> museums = new HashSet<>();
 

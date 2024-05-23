@@ -1,8 +1,12 @@
 package ru.iu3.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.iu3.backend.models.Artist;
@@ -11,6 +15,7 @@ import ru.iu3.backend.models.Painting;
 import ru.iu3.backend.repositories.ArtistRepository;
 import ru.iu3.backend.repositories.MuseumRepository;
 import ru.iu3.backend.repositories.PaintingRepository;
+import ru.iu3.backend.tools.DataValidationException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -31,9 +36,17 @@ public class PaintingController {
     ArtistRepository artistRepository;
 
     @GetMapping("/paintings")
-    public List
-    getAllCountries() {
-        return paintingRepository.findAll();
+    public Page<Painting> getAllPaintings(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+        return paintingRepository.findAll(PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name")));
+    }
+
+    @GetMapping("/paintings/{id}")
+    public ResponseEntity<Painting> getPainting(@PathVariable(value = "id") Long paintingID)
+            throws DataValidationException
+    {
+        Painting painting = paintingRepository.findById(paintingID)
+                .orElseThrow(()-> new DataValidationException("Картина с таким индексом не найдена"));
+        return ResponseEntity.ok(painting);
     }
 
     @PostMapping("/paintings")
@@ -108,5 +121,11 @@ public class PaintingController {
         else
             resp.put("deleted", Boolean.FALSE);
         return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/deletepaintings")
+    public ResponseEntity deletePaintings(@Validated @RequestBody List<Painting> paintingList) {
+        paintingRepository.deleteAll(paintingList);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }

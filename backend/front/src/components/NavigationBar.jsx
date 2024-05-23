@@ -52,7 +52,10 @@ class NavigationBarClass extends React.Component {
                 </Navbar.Collapse>
                 <Navbar.Text>{this.props.user && this.props.user.login}</Navbar.Text>
                 { this.props.user &&
-                    <Nav.Link onClick={this.logout}><FontAwesomeIcon icon={faUser} fixedWidth />{' '}Выход</Nav.Link>
+                    <Nav.Link as={Link} to="/account"> <FontAwesomeIcon icon={faUser} fixedWidth /> </Nav.Link>
+                }
+                { this.props.user &&
+                    <Nav.Link onClick={this.logout}>Выход</Nav.Link>
                 }
                 { !this.props.user &&
                     <Nav.Link as={Link} to="/login"><FontAwesomeIcon icon={faUser} fixedWidth />{' '}Вход</Nav.Link>

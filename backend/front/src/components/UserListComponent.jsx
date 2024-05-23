@@ -1,30 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faTrash, faEdit, faPlus } from '@fortawesome/free-solid-svg-icons'
+import React, {useState, useEffect} from 'react';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome'
+import {faTrash, faEdit, faPlus} from '@fortawesome/free-solid-svg-icons'
 import Alert from './Alert'
 import BackendService from "./BackendService";
-import { useNavigate } from 'react-router-dom';
+import {useNavigate} from 'react-router-dom';
 import PaginationComponent from "./PaginationComponent";
 
-const CountryListComponent = props => {
+const UserListComponent = props => {
 
     const [message, setMessage] = useState();
-    const [countries, setCountries] = useState([]);
-    const [selectedCountries, setSelectedCountries] = useState([]);
+    const [users, setUsers] = useState([]);
+    const [selectedUsers, setSelectedUsers] = useState([]);
     const [show_alert, setShowAlert] = useState(false);
     const [checkedItems, setCheckedItems] = useState([]);
     const [hidden, setHidden] = useState(false);
     const navigate = useNavigate();
+
     const [page, setPage] = useState(0);
     const [totalCount, setTotalCount] = useState(0);
-    const limit = 2;
+    const limit = 5;
 
     const onPageChanged = cp => {
-        refreshCountries(cp - 1)
+        refreshUsers(cp - 1);
     }
 
-    const setChecked = v =>  {
-        setCheckedItems(Array(countries.length).fill(v));
+    const setChecked = v => {
+        setCheckedItems(Array(users.length).fill(v));
     }
 
     const handleCheckChange = e => {
@@ -41,9 +42,9 @@ const CountryListComponent = props => {
         setChecked(isChecked);
     }
 
-    const deleteCountriesClicked = () => {
+    const deleteUsersClicked = () => {
         let x = [];
-        countries.map ((t, idx) => {
+        users.map((t, idx) => {
             if (checkedItems[idx]) {
                 x.push(t)
             }
@@ -52,54 +53,56 @@ const CountryListComponent = props => {
         if (x.length > 0) {
             var msg;
             if (x.length > 1) {
-                msg = "Пожалуйста подтвердите удаление " + x.length + " стран";
-            }
-            else  {
-                msg = "Пожалуйста подтвердите удаление страны " + x[0].name;
+                msg = "Пожалуйста подтвердите удаление " + x.length + " пользователей";
+            } else {
+                msg = "Пожалуйста подтвердите удаление пользователя " + x[0].login;
             }
             setShowAlert(true);
-            setSelectedCountries(x);
+            setSelectedUsers(x);
             setMessage(msg);
         }
     }
 
-    const refreshCountries = cp => {
-        BackendService.retrieveAllCountries(cp, limit)
+    const refreshUsers = cp => {
+        BackendService.retrieveAllUsers(cp, limit)
             .then(
                 resp => {
-                    setCountries(resp.data.content);
+                    setUsers(resp.data.content);
                     setHidden(false);
                     setTotalCount(resp.data.totalElements);
                     setPage(cp);
                 }
             )
-            .catch(()=> {
-                setHidden(true );
+            .catch(() => {
+                setHidden(true);
                 setTotalCount(0);
             })
-            .finally(()=> setChecked(false))
+            .finally(() => setChecked(false))
     }
 
     useEffect(() => {
-        refreshCountries();
+        refreshUsers(page);
     }, [])
 
-    const updateCountryClicked = id => {
-        navigate(`/countries/${id}`)
-    }
 
-    const onDelete = () =>  {
-        BackendService.deleteCountries(selectedCountries)
-            .then( () => refreshCountries())
-            .catch(()=>{})
+    const onDelete = () => {
+        let canRemove = true;
+        let user = null;
+        for (let i = 0; i < selectedUsers.length; ++i) {
+            if (selectedUsers[i].museums.length > 0) {
+                canRemove = false;
+                user = selectedUsers[i];
+            }
+        }
+        if (canRemove) {
+            BackendService.deleteUsers(selectedUsers)
+                .then(() => refreshUsers(page))
+                .catch(() => {})
+        }
     }
 
     const closeAlert = () => {
         setShowAlert(false)
-    }
-
-    const addCountryClicked = () => {
-        navigate(`/countries/-1`)
     }
 
     if (hidden)
@@ -107,18 +110,14 @@ const CountryListComponent = props => {
     return (
         <div className="m-4">
             <div className="row my-2">
-                <h3>Страны</h3>
+                <h3>Пользователи</h3>
                 <div className="btn-toolbar">
                     <div className="btn-group ms-auto">
-                        <button className="btn btn-outline-secondary"
-                                onClick={addCountryClicked}>
-                            <FontAwesomeIcon icon={faPlus} />{' '}Добавить
-                        </button>
                     </div>
                     <div className="btn-group ms-2">
                         <button className="btn btn-outline-secondary"
-                                onClick={deleteCountriesClicked}>
-                            <FontAwesomeIcon icon={faTrash} />{' '}Удалить
+                                onClick={deleteUsersClicked}>
+                            <FontAwesomeIcon icon={faTrash}/>{' '}Удалить
                         </button>
                     </div>
                 </div>
@@ -132,10 +131,11 @@ const CountryListComponent = props => {
                 <table className="table table-sm">
                     <thead className="thead-light">
                     <tr>
-                        <th>Название</th>
+                        <th>Логин</th>
+                        <th>Электронная почта</th>
                         <th>
                             <div className="btn-toolbar pb-1">
-                                <div className="btn-group  ms-auto">
+                                <div className="btn-group ms-auto">
                                     <input type="checkbox" onChange={handleGroupCheckChange}/>
                                 </div>
                             </div>
@@ -144,19 +144,15 @@ const CountryListComponent = props => {
                     </thead>
                     <tbody>
                     {
-                        countries && countries.map((country, index) =>
-                            <tr key={country.id}>
-                                <td>{country.name}</td>
+                        users && users.map((user, index) =>
+                            <tr key={user.id}>
+                                <td>{user.login}</td>
+                                <td>{user.email}</td>
                                 <td>
                                     <div className="btn-toolbar">
-                                        <div className="btn-group  ms-auto">
-                                            <button className="btn btn-outline-secondary btn-sm btn-toolbar"
-                                                    onClick={() =>
-                                                        updateCountryClicked(country.id)}>
-                                                <FontAwesomeIcon icon={faEdit} fixedWidth/>
-                                            </button>
+                                        <div className="btn-group ms-auto">
                                         </div>
-                                        <div className="btn-group  ms-2  mt-1">
+                                        <div className="btn-group ms-2 mt-1">
                                             <input type="checkbox" name={index}
                                                    checked={checkedItems.length > index ? checkedItems[index] : false}
                                                    onChange={handleCheckChange}/>
@@ -174,9 +170,9 @@ const CountryListComponent = props => {
                    ok={onDelete}
                    close={closeAlert}
                    modal={show_alert}
-                   cancelButton={true} />
+                   cancelButton={true}/>
         </div>
-    );
+    )
 }
 
-export default CountryListComponent;
+export default UserListComponent;

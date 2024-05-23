@@ -1,13 +1,18 @@
 package ru.iu3.backend.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import ru.iu3.backend.models.Museum;
 import ru.iu3.backend.repositories.ArtistRepository;
 import ru.iu3.backend.repositories.MuseumRepository;
+import ru.iu3.backend.tools.DataValidationException;
 
 import java.util.HashMap;
 import java.util.List;
@@ -25,9 +30,17 @@ public class MuseumController {
     ArtistRepository artistRepository;
 
     @GetMapping("/museums")
-    public List
-    getAllCountries() {
-        return museumRepository.findAll();
+    public Page<Museum> getAllMuseums(@RequestParam("page") int page, @RequestParam("limit") int limit) {
+        return museumRepository.findAll(PageRequest.of(page, limit, Sort.by(Sort.Direction.ASC, "name")));
+    }
+
+    @GetMapping("/museums/{id}")
+    public ResponseEntity<Museum> getMuseum(@PathVariable(value = "id") Long museumId)
+            throws DataValidationException
+    {
+        Museum museum = museumRepository.findById(museumId)
+                .orElseThrow(()-> new DataValidationException("Музей с таким индексом не найден"));
+        return ResponseEntity.ok(museum);
     }
 
     @PostMapping("/museums")
@@ -87,5 +100,11 @@ public class MuseumController {
         else
             resp.put("deleted", Boolean.FALSE);
         return ResponseEntity.ok(resp);
+    }
+
+    @PostMapping("/deletemuseums")
+    public ResponseEntity deleteMuseums(@Validated @RequestBody List<Museum> museums) {
+        museumRepository.deleteAll(museums);
+        return new ResponseEntity(HttpStatus.OK);
     }
 }
